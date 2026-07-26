@@ -52,6 +52,7 @@ test("renderer creates two private configs with numeric ports", (t) => {
   assert.equal(first.plugins[0].listenHost, "127.0.0.1");
   assert.equal(second.plugins[0].listenPort, 32082);
   assert.equal(statSync(join(outputDirectory, "phex-1.json")).mode & 0o777, 0o600);
+  assert.equal(statSync(join(outputDirectory, "logs")).mode & 0o777, 0o700);
 });
 
 test("deployment assets use supported Node and loopback exporters", () => {
@@ -76,4 +77,3 @@ test("deployment assets use supported Node and loopback exporters", () => {
   assert.match(secondTemplate, /"listenHost": "127\.0\.0\.1"/);
   assert.doesNotMatch(`${firstTemplate}${secondTemplate}`, /apiKey": "(?!\$\{)/);
 });
-

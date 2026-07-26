@@ -111,7 +111,9 @@ export function render({ envPath, outputDirectory }) {
   const env = parseEnv(readFileSync(envPath, "utf8"));
   mkdirSync(outputDirectory, { recursive: true, mode: 0o700 });
   chmodSync(outputDirectory, 0o700);
-  mkdirSync(join(outputDirectory, "logs"), { recursive: true, mode: 0o700 });
+  const logsDirectory = join(outputDirectory, "logs");
+  mkdirSync(logsDirectory, { recursive: true, mode: 0o700 });
+  chmodSync(logsDirectory, 0o700);
 
   return templateNames.map((templateName) => {
     const templatePath = join(deployRoot, "config", templateName);
@@ -133,4 +135,3 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(1);
   }
 }
-
