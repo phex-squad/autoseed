@@ -3,11 +3,18 @@ export const AUTOSEED_CONFIG = Object.freeze({
   staleAfterMs: 90000,
   exporters: [
     {
-      code: "server-1",
-      name: "My Squad Server",
+      code: "phex-1",
+      name: "[RU][#1] PHEX | ФЕНИКС",
       priority: 10,
-      snapshotUrl: "https://exporter.example.org/v1/autoseed/snapshot",
-      joinLinkUrl: "https://exporter.example.org/v1/autoseed/join-link"
+      snapshotUrl: "",
+      joinLinkUrl: ""
+    },
+    {
+      code: "phex-2",
+      name: "[RU][#2] PHEX | ФЕНИКС",
+      priority: 20,
+      snapshotUrl: "",
+      joinLinkUrl: ""
     }
   ]
 });

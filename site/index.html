@@ -4,20 +4,186 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
+      name="description"
+      content="Автосид серверов Squad сообщества PHEX — актуальный сервер, онлайн и подключение в один клик."
+    >
+    <meta name="theme-color" content="#090707">
+    <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; connect-src https:; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'"
     >
-    <title>Автосид Squad</title>
+    <title>PHEX — автосид серверов Squad</title>
+    <link rel="icon" href="./assets/phex-logo.webp" type="image/webp">
+    <link rel="preload" href="./assets/phex-logo.webp" as="image" type="image/webp">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
+    <div class="page-glow page-glow--top" aria-hidden="true"></div>
+    <div class="page-glow page-glow--bottom" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="PHEX — на главную">
+        <img src="./assets/phex-logo.webp" width="72" height="72" alt="">
+        <span class="brand-copy">
+          <strong>PHEX</strong>
+          <small>Squad community</small>
+        </span>
+      </a>
+      <a
+        class="header-link"
+        href="https://discord.gg/phex"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <span>Наш Discord</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
     <main>
-      <p class="eyebrow">Squad server seeding</p>
-      <h1>Автосид</h1>
-      <p id="recommended">Ищу доступный сервер…</p>
-      <p id="status" role="status">Загружаю данные…</p>
-      <section id="servers" class="server-grid" aria-label="Серверы"></section>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="signal" aria-hidden="true"></span>
+            Автосид PHEX
+          </p>
+          <h1 id="hero-title">
+            Собираемся
+            <span>в одном месте.</span>
+          </h1>
+          <p class="hero-lead">
+            Живое состояние серверов PHEX и одна понятная точка сбора.
+            Заходи туда, где сейчас нужна твоя поддержка.
+          </p>
+          <div class="hero-actions">
+            <button id="hero-join" class="primary-action" type="button" disabled>
+              Подключиться на сид
+            </button>
+            <a class="text-link" href="#servers">
+              Все серверы
+              <span aria-hidden="true">↓</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="recommendation" aria-labelledby="recommendation-label">
+          <div class="recommendation-head">
+            <span id="recommendation-label">Точка сбора</span>
+            <span id="recommendation-state" class="state-pill">Проверяю</span>
+          </div>
+          <div class="recommendation-body">
+            <p id="recommended-kicker" class="recommendation-kicker">Сейчас</p>
+            <h2 id="recommended">Получаю состояние серверов…</h2>
+            <p id="recommended-note">
+              Это займёт всего несколько секунд.
+            </p>
+          </div>
+          <div class="recommendation-stats" aria-label="Состояние рекомендуемого сервера">
+            <div>
+              <strong id="recommended-players">—</strong>
+              <span>игроков</span>
+            </div>
+            <div>
+              <strong id="recommended-queue">—</strong>
+              <span>в очереди</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="servers" class="servers-section" aria-labelledby="servers-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">01 / Серверы</p>
+            <h2 id="servers-title">Выбери свой фронт</h2>
+          </div>
+          <div class="refresh-block">
+            <p id="status" role="status" aria-live="polite">Загружаю данные…</p>
+            <button id="refresh" class="refresh-button" type="button">
+              <span aria-hidden="true">↻</span>
+              Обновить
+            </button>
+          </div>
+        </div>
+        <div id="server-grid" class="server-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="principle" aria-labelledby="principle-title">
+        <div>
+          <p class="section-index">02 / Как это работает</p>
+          <h2 id="principle-title">Один сервер.<br>Один общий рывок.</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <span>01</span>
+            <div>
+              <strong>Смотрим состояние</strong>
+              <p>Страница получает свежий онлайн напрямую от SquadJS.</p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <strong>Собираемся вместе</strong>
+              <p>Система рекомендует первый доступный сервер по приоритету.</p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <strong>Заходим в Squad</strong>
+              <p>Без ключей в браузере: безопасную ссылку выдаёт сервер.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </main>
+
+    <footer>
+      <div class="footer-brand">
+        <img src="./assets/phex-logo.webp" width="48" height="48" alt="">
+        <span>PHEX</span>
+      </div>
+      <p>Поднимаем сервер вместе.</p>
+      <a href="https://discord.gg/phex" target="_blank" rel="noreferrer">
+        discord.gg/phex
+      </a>
+    </footer>
+
+    <template id="server-card-template">
+      <article class="server-card">
+        <div class="card-topline">
+          <span class="server-number"></span>
+          <span class="server-status"></span>
+        </div>
+        <div class="card-heading">
+          <div>
+            <p class="server-community">PHEX / ФЕНИКС</p>
+            <h3 class="server-name"></h3>
+          </div>
+          <span class="recommended-badge">Точка сбора</span>
+        </div>
+        <div class="population">
+          <strong class="player-count">—</strong>
+          <span class="player-capacity">из —</span>
+          <div class="population-track" aria-hidden="true">
+            <span></span>
+          </div>
+        </div>
+        <dl class="server-details">
+          <div>
+            <dt>Карта</dt>
+            <dd class="server-layer">Нет данных</dd>
+          </div>
+          <div>
+            <dt>Очередь</dt>
+            <dd class="server-queue">—</dd>
+          </div>
+        </dl>
+        <button class="card-action" type="button" disabled>Подключиться</button>
+      </article>
+    </template>
+
     <script type="module" src="./app.js"></script>
   </body>
 </html>

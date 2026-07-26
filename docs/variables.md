@@ -15,6 +15,9 @@
 | `joinLinkUrl` | `site/config.js` | Полный HTTPS-адрес `<pathPrefix>/join-link`. |
 | `priority` | `site/config.js` | Чем меньше число, тем раньше сервер выбирается для сида. |
 
+Для PHEX источник Pages — `https://phex-squad.github.io`. Путь `/autoseed` в
+`corsOrigins` не входит.
+
 ## Значения с безопасными стандартными настройками
 
 | Параметр | Стандартное значение | Когда менять |
@@ -28,6 +31,20 @@
 | `eventStreamMaxConnectionsPerIp` | `4` | Ограничение одновременных потоков событий с одного адреса. |
 | `refreshIntervalMs` | `15000` | Частота резервного опроса страницы. |
 | `staleAfterMs` страницы | `90000` | Должно быть не меньше значения экспортёра. |
+
+## Переменные развёртывания PHEX
+
+Все значения находятся только в `deploy/.env`. Файл создаётся из
+`deploy/.env.example` и не отслеживается Git.
+
+| Переменная | Назначение |
+|---|---|
+| `SQUAD_HOST` | Адрес игровых серверов, сейчас `80.242.59.123`. |
+| `PHEX_1_QUERY_PORT`, `PHEX_2_QUERY_PORT` | Порты запросов двух серверов. |
+| `PHEX_1_RCON_PORT`, `PHEX_2_RCON_PORT` | RCON-порты двух серверов. |
+| `PHEX_1_RCON_PASSWORD`, `PHEX_2_RCON_PASSWORD` | Разные RCON-пароли. |
+| `PHEX_1_LOG_DIR`, `PHEX_2_LOG_DIR` | Доступные пользователю `ostw` каталоги журналов. |
+| `SQUADBROWSER_API_KEY` | Общий ключ SquadBrowser API. |
 
 ## Что не является параметром страницы
 

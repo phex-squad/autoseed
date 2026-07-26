@@ -1,0 +1,49 @@
+{
+  "server": {
+    "id": 1,
+    "host": "${SQUAD_HOST}",
+    "queryPort": "${PHEX_1_QUERY_PORT}",
+    "rconPort": "${PHEX_1_RCON_PORT}",
+    "rconPassword": "${PHEX_1_RCON_PASSWORD}",
+    "logReaderMode": "tail",
+    "logDir": "${PHEX_1_LOG_DIR}",
+    "adminLists": []
+  },
+  "connectors": {},
+  "plugins": [
+    {
+      "plugin": "AutoseedExporter",
+      "enabled": true,
+      "listenHost": "127.0.0.1",
+      "listenPort": 32081,
+      "pathPrefix": "/v1/autoseed",
+      "serverId": 1,
+      "serverCode": "phex-1",
+      "serverName": "[RU][#1] PHEX | ФЕНИКС | discord.gg/phex",
+      "isSeedCandidate": true,
+      "squadbrowserApiKey": "${SQUADBROWSER_API_KEY}",
+      "corsOrigins": [
+        "https://phex-squad.github.io"
+      ],
+      "staleAfterMs": 90000,
+      "rateLimitWindowMs": 60000,
+      "rateLimitMaxRequests": 120,
+      "eventStreamMaxConnectionsPerIp": 4
+    }
+  ],
+  "logger": {
+    "verboseness": {
+      "SquadServer": 1,
+      "LogParser": 1,
+      "RCON": 1,
+      "AutoseedExporter": 1
+    },
+    "colors": {
+      "SquadServer": "yellowBright",
+      "SquadServerFactory": "yellowBright",
+      "LogParser": "blueBright",
+      "RCON": "redBright"
+    }
+  }
+}
+

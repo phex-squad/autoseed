@@ -1,9 +1,22 @@
 import { AUTOSEED_CONFIG } from "./config.js";
 import { chooseSeedServer, collectServers, isAvailableSeedServer } from "./selection.js";
 
-const statusNode = document.querySelector("#status");
-const recommendedNode = document.querySelector("#recommended");
-const serversNode = document.querySelector("#servers");
+const nodes = {
+  status: document.querySelector("#status"),
+  refresh: document.querySelector("#refresh"),
+  grid: document.querySelector("#server-grid"),
+  template: document.querySelector("#server-card-template"),
+  heroJoin: document.querySelector("#hero-join"),
+  recommendationState: document.querySelector("#recommendation-state"),
+  recommended: document.querySelector("#recommended"),
+  recommendedKicker: document.querySelector("#recommended-kicker"),
+  recommendedNote: document.querySelector("#recommended-note"),
+  recommendedPlayers: document.querySelector("#recommended-players"),
+  recommendedQueue: document.querySelector("#recommended-queue")
+};
+
+let recommendedServer = null;
+let refreshing = false;
 
 function safeHttpsUrl(value) {
   try {
@@ -14,16 +27,36 @@ function safeHttpsUrl(value) {
   }
 }
 
+function readableLayer(value) {
+  if (!value) return "Ожидаем карту";
+  return String(value).replaceAll("_", " · ");
+}
+
+function serverNumber(code) {
+  const match = String(code).match(/(\d+)$/);
+  return match ? `Сервер №${match[1]}` : "Сервер";
+}
+
+function serverState(server) {
+  if (server.error === "Экспортёр ещё не подключён") {
+    return { label: "Настраивается", kind: "pending" };
+  }
+  if (server.fresh && server.online) {
+    return { label: "В сети", kind: "online" };
+  }
+  return { label: "Нет свежих данных", kind: "offline" };
+}
+
 async function fetchSnapshot(exporter) {
   const url = safeHttpsUrl(exporter.snapshotUrl);
-  if (!url) return { ok: false, error: "Нужен HTTPS-адрес snapshot" };
+  if (!url) return { ok: false, error: "Экспортёр ещё не подключён" };
 
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
       cache: "no-store"
     });
-    if (!response.ok) return { ok: false, error: `HTTP ${response.status}` };
+    if (!response.ok) return { ok: false, error: `Экспортёр ответил HTTP ${response.status}` };
     return { ok: true, snapshot: await response.json() };
   } catch {
     return { ok: false, error: "Нет связи с экспортёром" };
@@ -31,14 +64,14 @@ async function fetchSnapshot(exporter) {
 }
 
 async function joinServer(server, button) {
-  const url = safeHttpsUrl(server.joinLinkUrl);
+  const url = safeHttpsUrl(server?.joinLinkUrl);
   if (!url) {
-    statusNode.textContent = "Для join-link нужен HTTPS-адрес.";
+    nodes.status.textContent = "Подключение появится после настройки SquadBrowser.";
     return;
   }
 
   button.disabled = true;
-  statusNode.textContent = `Получаю ссылку для ${server.name}…`;
+  nodes.status.textContent = `Получаю безопасную ссылку для ${server.name}…`;
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
@@ -49,58 +82,125 @@ async function joinServer(server, button) {
       throw new Error("join-link unavailable");
     }
     const joinUrl = new URL(payload.joinLink);
-    if (joinUrl.protocol !== "steam:") throw new Error("unexpected join-link protocol");
-    statusNode.textContent = `Открываю ${server.name} в Steam…`;
+    if (joinUrl.protocol !== "steam:") throw new Error("unexpected protocol");
+    nodes.status.textContent = `Открываю ${server.name} в Steam…`;
     window.location.assign(joinUrl.href);
   } catch {
-    statusNode.textContent = "Не удалось получить ссылку подключения. Попробуйте ещё раз.";
+    nodes.status.textContent = "Не удалось получить ссылку. Попробуйте ещё раз.";
   } finally {
-    button.disabled = false;
+    button.disabled = !isAvailableSeedServer(server);
   }
 }
 
-function createServerCard(server, recommended) {
-  const card = document.createElement("article");
-  card.className = "server-card";
-  if (recommended) card.dataset.recommended = "true";
+function renderCard(server, recommended) {
+  const card = nodes.template.content.firstElementChild.cloneNode(true);
+  const state = serverState(server);
+  const available = isAvailableSeedServer(server);
+  const percentage =
+    server.maxPlayers > 0
+      ? Math.min(100, Math.round((server.playerCount / server.maxPlayers) * 100))
+      : 0;
 
-  const title = document.createElement("h3");
-  title.textContent = server.name;
-  const state = document.createElement("p");
-  state.className = "server-state";
-  state.textContent = server.online && server.fresh ? "В сети" : "Нет свежих данных";
-  const players = document.createElement("p");
-  players.textContent = `Игроки: ${server.playerCount}/${server.maxPlayers || "?"}, очередь: ${server.queueLength}`;
-  const layer = document.createElement("p");
-  layer.textContent = server.currentLayer ? `Слой: ${server.currentLayer}` : "Слой пока неизвестен";
-  const priority = document.createElement("p");
-  priority.textContent = `Приоритет: ${server.priority}`;
-  const button = document.createElement("button");
-  button.type = "button";
+  card.dataset.state = state.kind;
+  card.dataset.recommended = String(recommended);
+  card.querySelector(".server-number").textContent = serverNumber(server.code);
+  card.querySelector(".server-status").textContent = state.label;
+  card.querySelector(".server-name").textContent = server.name;
+  card.querySelector(".player-count").textContent = String(server.playerCount);
+  card.querySelector(".player-capacity").textContent = `из ${server.maxPlayers || "—"} игроков`;
+  card.querySelector(".population-track span").style.width = `${percentage}%`;
+  card.querySelector(".server-layer").textContent = readableLayer(server.currentLayer);
+  card.querySelector(".server-queue").textContent = server.fresh
+    ? String(server.queueLength)
+    : "—";
+
+  const button = card.querySelector(".card-action");
   button.textContent = recommended ? "Подключиться на сид" : "Подключиться";
-  button.disabled = !isAvailableSeedServer(server);
+  button.disabled = !available;
   button.addEventListener("click", () => joinServer(server, button));
-
-  card.append(title, state, players, layer, priority, button);
   return card;
+}
+
+function renderRecommendation(servers) {
+  recommendedServer = chooseSeedServer(servers);
+  const allPending =
+    servers.length > 0 && servers.every((server) => server.error === "Экспортёр ещё не подключён");
+
+  if (recommendedServer) {
+    nodes.recommendationState.textContent = "В сети";
+    nodes.recommendationState.dataset.kind = "online";
+    nodes.recommendedKicker.textContent = "Сейчас собираемся на";
+    nodes.recommended.textContent = recommendedServer.name;
+    nodes.recommendedNote.textContent =
+      "Этот сервер выбран по очереди PHEX и готов принимать игроков.";
+    nodes.recommendedPlayers.textContent = String(recommendedServer.playerCount);
+    nodes.recommendedQueue.textContent = String(recommendedServer.queueLength);
+    nodes.heroJoin.disabled = false;
+    return;
+  }
+
+  nodes.heroJoin.disabled = true;
+  nodes.recommendedPlayers.textContent = "—";
+  nodes.recommendedQueue.textContent = "—";
+
+  if (allPending) {
+    nodes.recommendationState.textContent = "Подготовка";
+    nodes.recommendationState.dataset.kind = "pending";
+    nodes.recommendedKicker.textContent = "Система";
+    nodes.recommended.textContent = "Готовится к запуску";
+    nodes.recommendedNote.textContent =
+      "Страница уже готова. Подключаем живые данные серверов и безопасный вход.";
+    return;
+  }
+
+  nodes.recommendationState.textContent = "Пауза";
+  nodes.recommendationState.dataset.kind = "offline";
+  nodes.recommendedKicker.textContent = "Прямо сейчас";
+  nodes.recommended.textContent = "Нет доступной точки сбора";
+  nodes.recommendedNote.textContent =
+    "Серверы заполнены, выключены или давно не обновляли состояние.";
 }
 
 function render(servers) {
   const recommended = chooseSeedServer(servers);
-  recommendedNode.textContent = recommended
-    ? `Рекомендуемый сервер: ${recommended.name}`
-    : "Сейчас нет доступного сервера для сида.";
-  serversNode.replaceChildren(
-    ...servers.map((server) => createServerCard(server, server.code === recommended?.code))
+  renderRecommendation(servers);
+  nodes.grid.replaceChildren(
+    ...servers.map((server) => renderCard(server, server.code === recommended?.code))
   );
-  statusNode.textContent = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 }
 
 async function refresh() {
-  statusNode.textContent = "Обновляю состояние серверов…";
-  const results = await Promise.all(AUTOSEED_CONFIG.exporters.map(fetchSnapshot));
-  render(collectServers(results, AUTOSEED_CONFIG));
+  if (refreshing) return;
+  refreshing = true;
+  nodes.refresh.disabled = true;
+  nodes.refresh.dataset.loading = "true";
+  nodes.status.textContent = "Обновляю состояние серверов…";
+
+  try {
+    const results = await Promise.all(AUTOSEED_CONFIG.exporters.map(fetchSnapshot));
+    const servers = collectServers(results, AUTOSEED_CONFIG);
+    render(servers);
+    const pendingCount = servers.filter(
+      (server) => server.error === "Экспортёр ещё не подключён"
+    ).length;
+    nodes.status.textContent =
+      pendingCount === servers.length
+        ? "Живые данные подключаются"
+        : `Обновлено в ${new Date().toLocaleTimeString("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })}`;
+  } finally {
+    refreshing = false;
+    nodes.refresh.disabled = false;
+    delete nodes.refresh.dataset.loading;
+  }
 }
+
+nodes.refresh.addEventListener("click", refresh);
+nodes.heroJoin.addEventListener("click", () => {
+  if (recommendedServer) joinServer(recommendedServer, nodes.heroJoin);
+});
 
 await refresh();
 window.setInterval(refresh, Math.max(5000, Number(AUTOSEED_CONFIG.refreshIntervalMs) || 15000));

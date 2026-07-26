@@ -14,11 +14,21 @@ test("overlay includes every relative dependency required by the exporter", () =
   }
 });
 
-test("public page example contains no secret value or non-HTTPS exporter", () => {
+test("public page contains no secret value or non-HTTPS exporter", () => {
   const configText = readFileSync(new URL("../site/config.js", import.meta.url), "utf8");
   assert.doesNotMatch(configText, /apiKey|token|password|secret/i);
   assert.doesNotMatch(configText, /http:\/\//i);
-  assert.match(configText, /https:\/\/exporter\.example\.org/);
+  assert.match(configText, /code: "phex-1"/);
+  assert.match(configText, /code: "phex-2"/);
+});
+
+test("PHEX page uses local branding and an honest pre-configuration state", () => {
+  const html = readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../site/app.js", import.meta.url), "utf8");
+  assert.match(html, /assets\/phex-logo\.webp/);
+  assert.match(html, /Собираемся/);
+  assert.match(app, /Экспортёр ещё не подключён/);
+  assert.doesNotMatch(html, /fonts\.(googleapis|gstatic)\.com/);
 });
 
 test("portable exporter never disables TLS certificate verification", () => {
