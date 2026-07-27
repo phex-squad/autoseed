@@ -1,6 +1,7 @@
 export const AUTOSEED_CONFIG = Object.freeze({
   refreshIntervalMs: 15000,
   staleAfterMs: 90000,
+  maxSeedPlayers: 80,
   exporters: [
     {
       code: "phex-1",

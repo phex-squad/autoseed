@@ -20,13 +20,17 @@ test("public page contains no secret value or non-HTTPS exporter", () => {
   assert.doesNotMatch(configText, /http:\/\//i);
   assert.match(configText, /code: "phex-1"/);
   assert.match(configText, /code: "phex-2"/);
+  assert.match(configText, /maxSeedPlayers: 80/);
 });
 
-test("PHEX page uses local branding and an honest pre-configuration state", () => {
+test("PHEX page includes local branding and the autoseed connector", () => {
   const html = readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
+  const connector = readFileSync(new URL("../site/connector.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../site/app.js", import.meta.url), "utf8");
   assert.match(html, /assets\/phex-logo\.webp/);
   assert.match(html, /Собираемся/);
+  assert.match(html, /Запустить автосид/);
+  assert.match(connector, /Служебное окно|служебное окно/);
   assert.match(app, /Экспортёр ещё не подключён/);
   assert.doesNotMatch(html, /fonts\.(googleapis|gstatic)\.com/);
 });

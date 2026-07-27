@@ -14,6 +14,7 @@
 | `snapshotUrl` | `site/config.js` | Полный HTTPS-адрес `<pathPrefix>/snapshot`. |
 | `joinLinkUrl` | `site/config.js` | Полный HTTPS-адрес `<pathPrefix>/join-link`. |
 | `priority` | `site/config.js` | Чем меньше число, тем раньше сервер выбирается для сида. |
+| `maxSeedPlayers` | `site/config.js` | Порог рассида. При значении `80` сервер исключается из точки сбора начиная с 80 игроков. |
 
 Для PHEX источник Pages — `https://phex-squad.github.io`. Путь `/autoseed` в
 `corsOrigins` не входит.
@@ -29,6 +30,7 @@
 | `rateLimitMaxRequests` | `120` | Уменьшить при публичной нагрузке, учитывая частоту страницы. |
 | `refreshIntervalMs` | `15000` | Частота резервного опроса страницы. |
 | `staleAfterMs` страницы | `90000` | Должно быть не меньше значения экспортёра. |
+| `maxSeedPlayers` | `80` | Менять только при согласованном изменении правила рассида. |
 
 ## Переменные развёртывания PHEX
 

@@ -56,8 +56,14 @@
             Заходи туда, где сейчас нужна твоя поддержка.
           </p>
           <div class="hero-actions">
-            <button id="hero-join" class="primary-action" type="button" disabled>
-              Подключиться на сид
+            <button
+              id="hero-join"
+              class="primary-action"
+              type="button"
+              aria-pressed="false"
+              disabled
+            >
+              Запустить автосид
             </button>
             <a class="text-link" href="#servers">
               Все серверы
@@ -166,7 +172,7 @@
         <div class="population">
           <strong class="player-count">—</strong>
           <span class="player-capacity">из —</span>
-          <div class="population-track" aria-hidden="true">
+          <div class="population-track" role="progressbar">
             <span></span>
           </div>
         </div>
