@@ -21,6 +21,7 @@ test("public page contains no secret value or non-HTTPS exporter", () => {
   assert.match(configText, /code: "phex-1"/);
   assert.match(configText, /code: "phex-2"/);
   assert.match(configText, /maxSeedPlayers: 80/);
+  assert.match(configText, /refreshIntervalMs: 180000/);
 });
 
 test("PHEX page includes local branding and the autoseed connector", () => {

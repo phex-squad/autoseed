@@ -350,4 +350,4 @@ nodes.heroJoin.addEventListener("click", () => {
 window.addEventListener("beforeunload", closeConnectorWindow);
 
 await refresh();
-window.setInterval(refresh, Math.max(5000, Number(AUTOSEED_CONFIG.refreshIntervalMs) || 15000));
+window.setInterval(refresh, Math.max(5000, Number(AUTOSEED_CONFIG.refreshIntervalMs) || 180000));
